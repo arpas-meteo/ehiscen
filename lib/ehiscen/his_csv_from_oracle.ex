@@ -39,14 +39,14 @@ defmodule Ehiscen.HisCsvfromOracle do
 
       iex> Ehiscen.HisCsvfromOracle.rinomina_colonne_map()
       %{
-      "column_1" => "cod_staz",
-      "column_2" => "cod_grand",
-      "column_3" => "data_ita",
-      "column_4" => "valore",
-      "column_5" => "cod_valid",
-      "column_6" => "liv_validaz",
-      "column_7" => "rete"
-    }
+        "column_1" => "cod_staz",
+        "column_2" => "cod_grand",
+        "column_3" => "data_ita",
+        "column_4" => "valore",
+        "column_5" => "cod_valid",
+        "column_6" => "liv_validaz",
+        "column_7" => "rete"
+      }
 
   """
 
