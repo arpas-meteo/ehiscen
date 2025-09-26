@@ -38,7 +38,7 @@ defmodule Ehiscen.MixProject do
   defp package() do
     [
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/alai-arpas/ehiscen"}
+      links: %{"GitHub" => "https://github.com/arpas-meteo/ehiscen"}
     ]
   end
 
