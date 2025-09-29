@@ -20,6 +20,15 @@ defmodule Ehiscen.HisCsvfromOracle do
   def colonne, do: ~w(cod_staz cod_grand data_mis valore cod_valid liv_validaz rete)
 
   @doc """
+  Colonne da esportare
+
+  ## Examples
+      iex> Ehiscen.HisCsvfromOracle.colonne_export()
+      []
+  """
+  def colonne_export, do: ~w(cod_staz cod_grand data_mis valore)
+
+  @doc """
   Header del file esportato da Oracle
 
   ## Examples
@@ -50,37 +59,47 @@ defmodule Ehiscen.HisCsvfromOracle do
   end
 
   @doc """
-  Legge un file ".csv" il delimitatore è ";" -> restituisce un DataFrame
+  Imposta i parametri per leggere file ".csv" il delimitatore è ";"
+  -> restituisce i parametri
 
   Header del file esportato da Oracle
 
   ## Examples
-      iex> Ehiscen.HisCsvfromOracle.leggi_csv("nome_file.csv", header_types(), 100)
+      iex> Ehiscen.HisCsvfromOracle.set_parametri_lettura_csv("nome_file.csv", header_types(), 100)
 
   """
 
-  def leggi_csv(file, intestazione \\ header_types(), max_rows \\ @max_rows) do
+  def set_parametri_lettura_csv(file, intestazione \\ header_types(), max_rows \\ @max_rows) do
     opts = [delimiter: ";", max_rows: max_rows, header: false, dtypes: intestazione]
+    {file, opts}
+  end
 
+  @doc """
+  Legge un file ".csv"  -> restituisce un DataFrame
+
+  parametri è una tuple {file, opts}
+
+  ## Examples
+      iex> Ehiscen.HisCsvfromOracle.leggi_csv(parametri)
+
+  """
+  def leggi_csv({file, opts} = parametri) do
+    IO.puts(parametri)
     DF.from_csv!(file, opts)
-    |> plug_add_data_usa(:data_anno_mm_gg_T)
   end
 
-  defp plug_add_data_usa(df, :data_anno_mm_gg_T) do
+  def add__data_time_e_data_mis(df) do
     df0 = DF.mutate(df, date_time: Explorer.Series.strptime(data_ita, "%d-%m-%Y %H:%M"))
-    df1 = DF.mutate(df0, data_mis: Explorer.Series.strftime(date_time, "%Y-%m-%dT%H:%MZ"))
-    df1
-    # dfinale = DF.discard(df1, ["data_ita", "date_time"])
+    DF.mutate(df0, data_mis: Explorer.Series.strftime(date_time, "%Y-%m-%dT%H:%MZ"))
   end
 
-  def estrai_anno_ita(stringa) do
-    _formato = "GG-MM-ANNO HH:MM"
-    _stringa = "31-01-2023 00:00"
+  def seleziona_colonne_nel_dataframe(df, selezione \\ colonne_export()) do
+    DF.select(df, selezione)
+  end
 
-    String.split(stringa, " ")
-    |> hd
-    |> String.split("-")
-    |> List.last()
-    |> String.to_integer()
+  def leggi_csv_e_trasforma({file, opts}) do
+    DF.from_csv!(file, opts)
+    |> add__data_time_e_data_mis()
+    |> seleziona_colonne_nel_dataframe()
   end
 end
