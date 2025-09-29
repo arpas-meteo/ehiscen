@@ -61,6 +61,26 @@ defmodule Ehiscen.HisCsvfromOracle do
 
   def leggi_csv(file, intestazione \\ header_types(), max_rows \\ @max_rows) do
     opts = [delimiter: ";", max_rows: max_rows, header: false, dtypes: intestazione]
+
     DF.from_csv!(file, opts)
+    |> plug_add_data_usa(:data_anno_mm_gg_T)
+  end
+
+  defp plug_add_data_usa(df, :data_anno_mm_gg_T) do
+    df0 = DF.mutate(df, date_time: Explorer.Series.strptime(data_ita, "%d-%m-%Y %H:%M"))
+    df1 = DF.mutate(df0, data_mis: Explorer.Series.strftime(date_time, "%Y-%m-%dT%H:%MZ"))
+    df1
+    # dfinale = DF.discard(df1, ["data_ita", "date_time"])
+  end
+
+  def estrai_anno_ita(stringa) do
+    _formato = "GG-MM-ANNO HH:MM"
+    _stringa = "31-01-2023 00:00"
+
+    String.split(stringa, " ")
+    |> hd
+    |> String.split("-")
+    |> List.last()
+    |> String.to_integer()
   end
 end
