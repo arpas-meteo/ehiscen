@@ -83,8 +83,8 @@ defmodule Ehiscen.HisCsvfromOracle do
       iex> Ehiscen.HisCsvfromOracle.leggi_csv(parametri)
 
   """
-  def leggi_csv({file, opts} = parametri) do
-    IO.puts(parametri)
+  def leggi_csv(parametri) do
+    {file, opts} = parametri
     DF.from_csv!(file, opts)
   end
 
