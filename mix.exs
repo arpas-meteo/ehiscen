@@ -1,7 +1,7 @@
 defmodule Ehiscen.MixProject do
   use Mix.Project
 
-  @version "0.1.3"
+  @version "0.1.4"
 
   def project do
     [
@@ -20,7 +20,7 @@ defmodule Ehiscen.MixProject do
     "Helpers"
   end
 
-  # Run "mix help compile.app" to learn about applications.
+  # Run "mix help compile.app" to learn about applications
   def application do
     [
       extra_applications: [:logger]
