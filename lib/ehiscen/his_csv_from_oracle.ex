@@ -1,73 +1,66 @@
 defmodule Ehiscen.HisCsvfromOracle do
   @moduledoc """
-  Documentation for `Ehiscen.HisCsvfromOracle`.
+  Documentazione per `Ehiscen.HisCsvfromOracle`.
 
   Modulo specializzato nella lettura dei file csv esportati da Oracle
 
   Sono file senza intestazione
 
-  Vedi la funzione `rinomina_colonne_map` per vedere le colonne
+  Vedi la funzione `header_types` per vedere le colonne
 
   """
 
   require Explorer.DataFrame, as: DF
   # require Explorer.Series, as: DS
 
-  def grandezze, do: ~w(cod_staz)
+  @max_rows 100_000_000_000_000_000
+
+  def grandezze, do: ~w(LIT P1H TCI DVI QIT RGI UCI VAI)
 
   def colonne, do: ~w(cod_staz cod_grand data_mis valore cod_valid liv_validaz rete)
 
-  def dtypes do
+  @doc """
+  Header del file esportato da Oracle
+
+  ## Examples
+      iex> Ehiscen.HisCsvfromOracle.header_types()
+      [
+      {"cod_staz", :string},
+      {"cod_grand", :string},
+      {"data_ita", :string},
+      {"valore", :float},
+      {"cod_valid", :integer},
+      {"liv_validaz", :integer},
+      {"rete", :string}
+    ]
+  """
+
+  def header_types do
     # in csv 2020 sono presenti delle "A" come liv_validaz (column_6)
     #  {"column_5", :integer}, codici validi solo 0(ok) 4(-99.9 dati non validi ma inclusi in mongodb)
-
     [
-      {"column_1", :string},
-      {"column_2", :string},
-      {"column_3", :string},
-      {"column_4", :float},
-      {"column_5", :integer},
-      {"column_6", :integer},
-      {"column_7", :string}
+      {"cod_staz", :string},
+      {"cod_grand", :string},
+      {"data_ita", :string},
+      {"valore", :float},
+      {"cod_valid", :integer},
+      {"liv_validaz", :integer},
+      {"rete", :string}
     ]
   end
 
   @doc """
-  RinominaColonneMap
+  Legge un file ".csv" il delimitatore è ";" -> restituisce un DataFrame
+
+  Header del file esportato da Oracle
 
   ## Examples
-
-      iex> Ehiscen.HisCsvfromOracle.rinomina_colonne_map()
-      %{
-        "column_1" => "cod_staz",
-        "column_2" => "cod_grand",
-        "column_3" => "data_ita",
-        "column_4" => "valore",
-        "column_5" => "cod_valid",
-        "column_6" => "liv_validaz",
-        "column_7" => "rete"
-      }
+      iex> Ehiscen.HisCsvfromOracle.leggi_csv("nome_file.csv", header_types(), 100)
 
   """
 
-  def rinomina_colonne_map do
-    %{
-      "column_1" => "cod_staz",
-      "column_2" => "cod_grand",
-      "column_3" => "data_ita",
-      "column_4" => "valore",
-      "column_5" => "cod_valid",
-      "column_6" => "liv_validaz",
-      "column_7" => "rete"
-    }
-  end
-
-  def leggi_DF(file) do
-    max_rows = 100_000_000_000_000
-    _max_rows = 100
-    opts = [delimiter: ";", max_rows: max_rows, header: false, dtypes: dtypes()]
-
-    df = DF.from_csv!(file, opts)
-    DF.rename(df, rinomina_colonne_map())
+  def leggi_csv(file, intestazione \\ header_types(), max_rows \\ @max_rows) do
+    opts = [delimiter: ";", max_rows: max_rows, header: false, dtypes: intestazione]
+    DF.from_csv!(file, opts)
   end
 end
